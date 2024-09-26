@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 using namespace std;
+
 struct bankrecord 
 {
     int accountnumber;
@@ -9,8 +10,8 @@ struct bankrecord
     double balance;
 };
 
-void addrecord()
- {
+void addrecord() 
+{
     bankrecord record;
     cout << "Enter Account Number: ";
     cin >> record.accountnumber;
@@ -19,20 +20,22 @@ void addrecord()
     getline(cin, record.name);
     cout << "Enter Balance: ";
     cin >> record.balance;
+
     ofstream outFile("bank_records.txt", ios::app | ios::binary);
-    outFile.write((&record), sizeof(record));
+    outFile.write(reinterpret_cast<char*>(&record), sizeof(record));
     outFile.close();
-    cout << "Record added successfully";
+    cout << "Record added successfully." << endl;
 }
 
-void showrecord() 
+void showrecords() 
 {
     bankrecord record;
     ifstream inFile("bank_records.txt", ios::binary);
-    cout << "Account Number";
-    while (inFile.read((&record), sizeof(record))) 
-	{
-        cout<<record.accountnumber<<record.name<<record.balance;
+    
+    cout << "Account Number\tName\tBalance" << endl;
+    while (inFile.read(reinterpret_cast<char*>(&record), sizeof(record))) 
+    {
+        cout << record.accountnumber << "\t" << record.name << "\t" << record.balance << endl;
     }
     inFile.close();
 }
@@ -47,13 +50,13 @@ void searchrecord()
     ifstream inFile("bank_records.txt", ios::binary);
     bool found = false;
 
-    while
-	{
+    while (inFile.read(reinterpret_cast<char*>(&record), sizeof(record))) 
+    {
         if (record.accountnumber == accnum) 
-		{
+        {
             cout << "Record found: " ;
-            cout << "Account Number: " << record.accountNumber;
-            cout << "Name: " << record.name ;
+            cout << "Account Number: " << record.accountnumber;
+            cout << "Name: " << record.name;
             cout << "Balance: " << record.balance ;
             found = true;
             break;
@@ -62,28 +65,28 @@ void searchrecord()
     inFile.close();
 
     if (!found) 
-	{
+    {
         cout << "Record not found.";
     }
 }
 
 void editrecord() 
 {
-    int accNum;
+    int accnum;
     cout << "Enter account number to edit: ";
-    cin >> accNum;
+    cin >> accnum;
 
     bankrecord record;
-    fstream file("bank_records.dat", ios::in | ios::out | ios::binary);
+    fstream file("bank_records.txt", ios::in | ios::out | ios::binary);
     bool found = false;
 
-    while() 
-	{
-        if (record.accountNumber == accNum) 
-		{
-            cout << "Editing Record: " ;
-            cout << "Current Name: " << record.name ;
-            cout << "Current Balance: " << record.balance;
+    while (file.read(reinterpret_cast<char*>(&record), sizeof(record))) 
+    {
+        if (record.accountnumber == accnum) 
+        {
+            cout << "\n Editing Record: ";
+            cout << "\n Current Name: " << record.name;
+            cout << "\n Current Balance: " << record.balance;
 
             cout << "Enter New Name: ";
             cin.ignore();
@@ -94,18 +97,19 @@ void editrecord()
             file.seekp(file.tellg() - sizeof(record));
             file.write(reinterpret_cast<char*>(&record), sizeof(record));
             found = true;
-            cout << "Record updated successfully!" << endl;
+            cout << "\n Record updated successfully!";
             break;
         }
     }
     file.close();
 
     if (!found) {
-        cout << "Record not found." << endl;
+        cout << "Record not found.";
     }
 }
 
-void deleteRecord() {
+void deleterecord() 
+{
     int accnum;
     cout << "Enter Account Number to delete: ";
     cin >> accnum;
@@ -115,57 +119,52 @@ void deleteRecord() {
     ofstream outFile("temp.txt", ios::binary);
     bool found = false;
 
-    while
-	 {
-        if (record.accountNumber != accNum) 
-		{
+    while (inFile.read(reinterpret_cast<char*>(&record), sizeof(record))) 
+    {
+        if (record.accountnumber != accnum) 
+        {
             outFile.write(reinterpret_cast<char*>(&record), sizeof(record));
-        } else 
-		{
+        } 
+        else 
+        {
             found = true;
         }
     }
     inFile.close();
     outFile.close();
 
-    remove("bank_records.dat"); 
-    rename("temp.dat", "bank_records.dat"); 
+    remove("bank_records.txt"); 
+    rename("temp.txt", "bank_records.txt"); 
 
     if (found) {
-        cout << "Record deleted successfully!" ;
+        cout << "Record deleted successfully!";
     } else {
-        cout << "Record not found." << endl;
+        cout << "Record not found." ;
     }
 }
+
 int main() 
 {
     int choice;
     do {
-        cout << "\n banking record system menu:";
-        cout << "1. \n Add Record\n";
-        cout << "2. \n Show/List Data\n";
-        cout << "3. \n Search Record\n";
-        cout << "4. \n Edit Record\n";
-        cout << "5. \n Delete Record\n";
-        cout << "6. \n Exit\n";
-        cout << "\n Enter your choice: ";
+        cout << "\nBanking Record System Menu:";
+        cout << "\n1. Add Record";
+        cout << "\n2. Show/List Data";
+        cout << "\n3. Search Record";
+        cout << "\n4. Edit Record";
+        cout << "\n5. Delete Record";
+        cout << "\n6. Exit";
+        cout << "\nEnter your choice: ";
         cin >> choice;
 
         switch (choice) {
-            case 1: addrecord();
-			break;
-            case 2: showrecords(); 
-			break;
-            case 3: searchrecord(); 
-			break;
-            case 4: editrecord(); 
-			break;
-            case 5: deleterecord(); 
-			break;
-            case 6: cout << "Exiting..."; 
-			break;
-            default: cout << "Invalid choice. please try again"; 
-			break;
+            case 1: addrecord(); break;
+            case 2: showrecords(); break;
+            case 3: searchrecord(); break;
+            case 4: editrecord(); break;
+            case 5: deleterecord(); break;
+            case 6: cout << "Exiting..." << endl; break;
+            default: cout << "Invalid choice. Please try again." << endl; break;
         }
     } while (choice != 6);
 
